@@ -15,14 +15,14 @@ const isReport = (s) => !s.includes("\x1b") && /^(OK|WARN|FAIL|    \S)/.test(s);
 
 const ready = (async () => {
   const t0 = performance.now();
-  post({ type: "stage", text: "Loading Python runtime" });
+  post({ type: "stage", text: "Installing the converter in this tab: Python runtime" });
   const py = await loadPyodide({ indexURL: here("pyodide/") });
   py.setStdout({ batched: (s) => {
     if (s.startsWith(">> ")) post({ type: "progress", text: s.slice(3) });
     else if (isReport(s)) post({ type: "line", text: s });
   } });
   py.setStderr({ batched: (s) => console.debug(s) });
-  post({ type: "stage", text: "Downloading the geometry kernel" });
+  post({ type: "stage", text: "Installing the converter in this tab: geometry kernel" });
   await py.loadPackage("micropip");
   // Fetch the wheels here (not inside micropip) so the download can report bytes.
   const wheels = await (await fetch("wheels.json")).json();   // [{name, size}]
@@ -45,10 +45,10 @@ const ready = (async () => {
     py.FS.writeFile("/wheels/" + w.name, buf.subarray(0, at));
   }
   post({ type: "download", loaded: total, total });
-  post({ type: "stage", text: "Installing the geometry kernel" });
+  post({ type: "stage", text: "Installing the converter in this tab: unpacking the geometry kernel" });
   await py.pyimport("micropip").install(wheels.map((w) => "emfs:/wheels/" + w.name), { deps: false });
   for (const w of wheels) py.FS.unlink("/wheels/" + w.name);
-  post({ type: "stage", text: "Loading converter" });
+  post({ type: "stage", text: "Installing the converter in this tab: converter modules" });
   py.FS.mkdirTree("/app/patches");
   for (const f of PY_FILES) {
     const r = await fetch("py/" + f);

@@ -166,7 +166,7 @@ footer .ico { width: 15px; height: 15px; fill: currentColor; flex: none; }
           <span><b>Rebuild standard cap screws at the size each one is used</b> (recommended).
             SolidWorks stores one size per screw file; rebuilt screws have the right size, no thread detail.</span></label>
       </details>
-      <div class="status busy" id="status"><span class="spinner"></span><span id="status-text">Loading the converter…</span></div>
+      <div class="status busy" id="status"><span class="spinner"></span><span id="status-text">Installing the converter in this tab…</span></div>
       <div class="loadbar" id="loadbar" hidden><i id="loadfill"></i></div>
     </div>
   </section>
@@ -244,14 +244,14 @@ function onWorkerMessage(ev) {
   if (m.type === "stage") { if (busy) setPhase(m.text); else status(m.text + "…", "busy"); }
   else if (m.type === "download") {
     $("loadbar").hidden = false; $("loadfill").style.width = (100 * m.loaded / m.total).toFixed(0) + "%";
-    status(`Downloading the converter: ${(m.loaded / 1e6).toFixed(0)} of ${(m.total / 1e6).toFixed(0)} MB. One time only, then your browser keeps it. You can drop files already.`, "busy");
+    status(`Installing the converter in this tab: ${(m.loaded / 1e6).toFixed(0)} of ${(m.total / 1e6).toFixed(0)} MB. Once only; your browser keeps it. You can drop files already.`, "busy");
   }
-  else if (m.type === "ready") { ready = true; status(`Ready: drop files to convert (loaded in ${m.seconds.toFixed(0)} s).`, "ready"); next(); }
+  else if (m.type === "ready") { ready = true; status(`Converter installed in this tab (${m.seconds.toFixed(0)} s). Drop files to convert.`, "ready"); next(); }
   else if (m.type === "progress") setPhase(m.text);
   else if (m.type === "line") logLine(m.text);
   else if (m.type === "done") done(m);
   else if (m.type === "error") {
-    if (m.loading) status("Could not load the converter: " + m.text.split("\n")[0].slice(0, 120) + ". Reload the page to try again.", "error");
+    if (m.loading) status("Could not install the converter: " + m.text.split("\n")[0].slice(0, 120) + ". Reload the page to try again.", "error");
     else if (FATAL.test(m.text)) {
       finish("That was too big for the browser's memory. Try fewer files, or the command-line tool.", true);
       logLine("FAIL out of browser memory: " + m.text.slice(0, 200));
@@ -280,7 +280,7 @@ async function submit(items) {
   if (!items.length) { status("No .SLDPRT or .SLDASM files in that selection.", "error"); return; }
   const files = await Promise.all(items.map(async (x) => ({ path: x.path, data: await x.file.arrayBuffer() })));
   queue.push(files);
-  if (!ready) status(`${describe(files)} queued; converting as soon as the converter has loaded.`, "busy");
+  if (!ready) status(`${describe(files)} queued; converting as soon as the converter is installed.`, "busy");
   else if (busy) setNote(`Queued: ${describe(files)}, starts when this one finishes.`);
   next();
 }
@@ -333,7 +333,7 @@ function run(files) {
 $("cancel").onclick = () => {
   worker.terminate(); startWorker();
   finish("Cancelled.", false);
-  status("Cancelled. Loading the converter again (cached, a few seconds)…", "busy");
+  status("Cancelled. Reinstalling the converter in this tab (a few seconds)…", "busy");
 };
 // end of a job, good or bad; `text` goes in the panel header
 function finish(text, isError) {
