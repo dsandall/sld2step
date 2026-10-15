@@ -1,0 +1,2 @@
+sldprt2xt==1.2.0
+cadquery-ocp-novtk>=7.9.3,<7.10

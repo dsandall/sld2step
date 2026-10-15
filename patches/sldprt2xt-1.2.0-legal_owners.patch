@@ -1,0 +1,42 @@
+--- sldprt2xt/xt/edit.py.orig
++++ sldprt2xt/xt/edit.py
+@@ -1080,6 +1080,21 @@
+ MULTI_BODY_LEGAL_OWNERS = (1,) + (0,) * 16
+ 
+ 
++
++def _fit_legal_owners(template, owners) -> list:
++    """Size a legal_owners flag list to the template's own element count.
++
++    ATTRIB_DEF.legal_owners is a fixed-length list whose length is set by
++    the file's schema (16 in some SolidWorks 2025 partitions, 17 in the
++    exports the constants were read from). The flag positions used here
++    are all below 16, so truncating or zero-padding is exact.
++    """
++    have = template.values.get("legal_owners")
++    n = len(have) if isinstance(have, list) else len(owners)
++    out = list(owners)[:n]
++    return out + [0] * (n - len(out))
++
++
+ def mark_as_multi_body(nodes: list[Node], root: int) -> list[Node]:
+     """Hang SolidWorks' multi-body mark on the assembly root.
+ 
+@@ -1129,7 +1144,7 @@
+         type_id=MULTI_BODY_TYPE_ID,
+         actions=list(MULTI_BODY_ACTIONS),
+         fields=list(MULTI_BODY_FIELDS),
+-        legal_owners=list(MULTI_BODY_LEGAL_OWNERS),
++        legal_owners=_fit_legal_owners(template, MULTI_BODY_LEGAL_OWNERS),
+         next=0,
+     )
+     chains.add(
+@@ -1296,7 +1311,7 @@
+         values.update(
+             identifier=name_index,
+             type_id=COLOUR_TYPE_ID,
+-            legal_owners=list(COLOUR_LEGAL_OWNERS),
++            legal_owners=_fit_legal_owners(template, COLOUR_LEGAL_OWNERS),
+             next=0,
+         )
+         chains.add(

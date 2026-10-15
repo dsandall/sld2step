@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+out*/
+*.step
+node_modules/
+glbcheck/bundle.js
+*.glb
+*.brep
+# never commit CAD inputs (customer data)
+*.[Ss][Ll][Dd][Pp][Rr][Tt]
+*.[Ss][Ll][Dd][Aa][Ss][Mm]
+*.[Ss][Ll][Dd][Dd][Rr][Ww]
+*.[Xx]_[TtBb]
+*.png
+!docs/public/*.png

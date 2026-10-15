@@ -1,0 +1,15 @@
+{
+  "name": "sld2step-tools",
+  "private": true,
+  "description": "Node tools for sld2step: gltfpack (meshopt compression of .glb) and the three.js load check",
+  "scripts": {
+    "build-check": "esbuild glbcheck/entry.mjs --bundle --format=esm --outfile=glbcheck/bundle.js --log-level=warning"
+  },
+  "dependencies": {
+    "gltfpack": "1.2.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "three": "0.180.0"
+  }
+}
