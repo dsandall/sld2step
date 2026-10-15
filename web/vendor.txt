@@ -1,0 +1,8 @@
+# Runtime files the site serves itself (web/build.sh downloads and verifies them).
+# <sha256> <url>
+# Python wheels, installed in the browser by micropip:
+543c7da2a7adadf21214938bb79c83ea12b473a4b6ee4ad4bf854e7715e13d1f https://files.pythonhosted.org/packages/17/d3/b64c356a907242d719fc668b71befd73324e47ab46c8ebbbede252c154b2/olefile-0.47-py2.py3-none-any.whl
+c5ecfb65c9e0da4112e4812c5771cde650a73c12fdd84ef31fd844cbafc40b99 https://files.pythonhosted.org/packages/0a/31/0cd8b4c64d122b2670bf6b4177d6ac96b0f793d3732ada443ee2e88cd0e4/sldprt2xt-1.2.0-py3-none-any.whl
+73bc4d5cea0dfe643f4b90b4d2e444690e8ea9652f9404aba33fa44889e27ce1 https://files.pythonhosted.org/packages/7e/0c/b3cd8223432500f4562c4153d4d150ccd9f9693fd2e99cd5936b669e25de/cadquery_ocp_novtk_ocp_wasm-7.9.3.1.post202609191800-cp314-cp314-pyemscripten_2026_0_wasm32.whl
+# Pyodide's own package (the core comes from npm, package.json):
+e2d52886594fd4cd0d0847110a1c34ae0134d3a970eb4496d3b5eb31ee2d8af6 https://cdn.jsdelivr.net/pyodide/v314.0.7/full/micropip-0.11.1-py3-none-any.whl

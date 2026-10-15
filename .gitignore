@@ -13,3 +13,5 @@ glbcheck/bundle.js
 *.[Xx]_[TtBb]
 *.png
 !docs/public/*.png
+web/dist/
+web/.vendor/

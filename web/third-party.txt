@@ -1,0 +1,18 @@
+sld2step web: software this page runs in your browser
+=====================================================
+
+sld2step                AGPL-3.0-only   https://github.com/dsandall/sld2step  (LICENSE.txt)
+sldprt2xt 1.2.0         AGPL-3.0-only   https://github.com/Emilien-Etadam/sldprt2xt
+                        (with patches/sldprt2xt-1.2.0-legal_owners.patch from sld2step)
+Open CASCADE (OCCT)     LGPL-2.1 with the OCCT exception   https://github.com/Open-Cascade-SAS/OCCT
+OCP / OCP.wasm          Apache-2.0      https://github.com/CadQuery/OCP  https://github.com/yeicor/OCP.wasm
+                        (cadquery-ocp-novtk-OCP.wasm 7.9.3.1.post202609191800; build scripts and
+                        sources at the OCP.wasm repository)
+Pyodide 314.0.7         MPL-2.0         https://github.com/pyodide/pyodide
+CPython 3.14            PSF-2.0         https://www.python.org/
+micropip 0.11.1         MPL-2.0         https://github.com/pyodide/micropip
+olefile 0.47            BSD-2-Clause    https://github.com/decalage2/olefile
+three.js r180           MIT             https://github.com/mrdoob/three.js
+
+The wheels and runtime files are served unmodified; their checksums are listed in
+web/vendor.txt of the sld2step source.
