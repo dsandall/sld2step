@@ -1,6 +1,6 @@
 """Serve web/dist locally with the response headers from web/_headers.
 
-    python3 web/serve.py [port]      (default 8765, bound to 127.0.0.1)
+    python3 web/serve.py [port] [bind]      (default 8765 on 127.0.0.1; bind 0.0.0.0 for the LAN)
 """
 import fnmatch
 import functools
@@ -42,6 +42,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
-    srv = http.server.ThreadingHTTPServer(("127.0.0.1", port), functools.partial(Handler, directory=str(DIST)))
-    print(f"serving {DIST} on http://127.0.0.1:{port}/")
+    bind = sys.argv[2] if len(sys.argv) > 2 else "127.0.0.1"
+    srv = http.server.ThreadingHTTPServer((bind, port), functools.partial(Handler, directory=str(DIST)))
+    print(f"serving {DIST} on http://{bind}:{port}/")
     srv.serve_forever()
