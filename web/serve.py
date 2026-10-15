@@ -29,10 +29,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         path = self.path.split("?", 1)[0]
+        cached = False
         for pat, hdrs in rules():
             if fnmatch.fnmatch(path, pat):
                 for k, v in hdrs:
                     self.send_header(k, v)
+                    cached |= k.lower() == "cache-control"
+        if not cached:
+            self.send_header("Cache-Control", "no-cache")   # else browsers guess from Last-Modified
         super().end_headers()
 
 

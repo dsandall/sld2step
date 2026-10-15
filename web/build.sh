@@ -28,7 +28,8 @@ cp "$root"/patches/*.patch dist/py/patches/
 cp "$root"/node_modules/pyodide/{pyodide.mjs,pyodide.asm.mjs,pyodide.asm.wasm,python_stdlib.zip,pyodide-lock.json} dist/pyodide/
 cp .vendor/micropip-*.whl dist/pyodide/
 cp .vendor/*.whl dist/wheels/ && rm dist/wheels/micropip-*.whl
-(cd dist/wheels && python3 -c 'import json, os; print(json.dumps([{"name": f, "size": os.path.getsize(f)} for f in sorted(os.listdir(".")) if f.endswith(".whl")]))' > index.json)
+# the index is not under wheels/: that folder is cached for a year, the index changes with every pin
+(cd dist/wheels && python3 -c 'import json, os; print(json.dumps([{"name": f, "size": os.path.getsize(f)} for f in sorted(os.listdir(".")) if f.endswith(".whl")]))' > ../wheels.json)
 t="$root/node_modules/three"
 cp "$t"/build/{three.module.js,three.core.js} dist/vendor/three/
 cp "$t"/examples/jsm/controls/OrbitControls.js dist/vendor/three/addons/controls/

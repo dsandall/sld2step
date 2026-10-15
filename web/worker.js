@@ -25,7 +25,7 @@ const ready = (async () => {
   post({ type: "stage", text: "Downloading the geometry kernel" });
   await py.loadPackage("micropip");
   // Fetch the wheels here (not inside micropip) so the download can report bytes.
-  const wheels = await (await fetch("wheels/index.json")).json();   // [{name, size}]
+  const wheels = await (await fetch("wheels.json")).json();   // [{name, size}]
   const total = wheels.reduce((a, w) => a + w.size, 0);
   let loaded = 0, lastPost = 0;
   py.FS.mkdirTree("/wheels");
@@ -59,7 +59,7 @@ const ready = (async () => {
   post({ type: "ready", seconds: (performance.now() - t0) / 1000 });
   return py;
 })();
-ready.catch((e) => post({ type: "error", text: String(e) }));
+ready.catch((e) => post({ type: "error", text: String(e), loading: true }));
 
 function rmTree(FS, dir) {
   if (!FS.analyzePath(dir).exists) return;
