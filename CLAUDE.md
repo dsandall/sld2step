@@ -53,4 +53,9 @@ there, not in Parasolid) and writes an XCAF assembly STEP with names.
   node → OCCT geometry/topology, healing, orientation, STEP writing.
 - **Scopes:** `sldprt` (part converter), `sldasm` (assembly builder), `load`
   (container/transmit selection), `check` (validation harness, FreeCAD), `patches`
-  (vendored fixes to dependencies), `docs`.
+  (vendored fixes to dependencies), `web` (browser version in `web/`), `docs`.
+
+## Testing
+Use only the public test set: `samples/fetch.sh` (MIT files, pinned commits,
+SHA-256 checked; the CAD files stay untracked). The browser version must give the
+same report lines as the CLI on it (`web/build.sh`, `python3 web/serve.py`).

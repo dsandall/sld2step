@@ -163,6 +163,32 @@ Instance counts match the tree, and bounding boxes match the STEP to 0.01 mm,
 except where one bad edge in a vendor part widens FreeCAD's STEP box to
 ±128 m (ISSUES.md #2); the meshes are unaffected.
 
+## Web version (`web/`)
+
+The same converter runs in the browser: Pyodide (CPython in WebAssembly) with the
+OCP.wasm build of Open CASCADE and sldprt2xt, in a Web Worker. The page installs the
+converter's own `.py` files unchanged; `web/webentry.py` applies the sldprt2xt patch,
+maps the four `TopoDS` casts that OCP.wasm binds under other names, and replaces the
+`gltfpack` subprocess with a copy (the preview `.glb` stays unpacked).
+
+```
+npm ci && web/build.sh      # web/dist: a static site, ~39 MB, everything self-hosted
+python3 web/serve.py        # http://127.0.0.1:8765, with the headers from web/_headers
+```
+
+- Nothing is fetched from a third party at runtime: Pyodide, the wheels
+  (`web/vendor.txt`, SHA-256 checked) and three.js are served from `web/dist`, and
+  the Content-Security-Policy (`connect-src 'self'`) stops the page from sending
+  data anywhere. Dropped files stay in the tab's memory.
+- First visit downloads ~35 MB (about 6-30 s), cached afterwards. Conversion runs at
+  close to native speed (table above); WebAssembly memory is capped at 4 GB, and the
+  worker is restarted after any job that leaves it above 1.2 GB.
+- Drop parts, or an assembly folder (Pack and Go): the top-level assemblies are
+  converted, each with its sub-assemblies and parts.
+- Deploy `web/dist` to any static host. `_headers` is read by Cloudflare Pages and
+  Netlify; on another host set the same CSP header. The largest file is the OCP
+  wheel at 23.7 MB, under Cloudflare Pages' 25 MiB per-file limit.
+
 ## Exact vs. approximated
 
 | Geometry | Handling |
@@ -196,8 +222,30 @@ face of the part it fastens, shank coaxial with a hole of matching diameter
 (clearance or tap drill), no head/material overlap. Every table size passes
 FreeCAD's strict Boolean check.
 
-A public sample set is still to come; until then these numbers cannot be
-reproduced outside the original package.
+### Public test set
+
+`samples/fetch.sh` downloads 30 MIT-licensed SolidWorks files from three GitHub
+repositories, each pinned to a commit and checked by SHA-256 (`samples/manifest.tsv`;
+the CAD files are never committed): six parts (blussyya/sldprt-format-research,
+hineybush/CherryMX) and five assemblies from Semi-ATE/3D-Models, one of them
+nested. All 24 part files (including the assemblies' components) give identical
+report lines natively and in the browser (bodies, validity, volume). 23 are valid
+closed solids; `keycap_r1_100` converts with one body that is not a valid solid
+(approximated blends, see below). Assemblies:
+
+| assembly | instances | unique parts | native | browser | browser memory | STEP |
+|---|---|---|---|---|---|---|
+| `asm-pickering120` | 5 | 2 | 0.0 s | 0.2 s | 0.3 GB | 0.1 MB |
+| `asm-ltm4644` | 97 | 2 | 0.0 s | 0.2 s | 0.3 GB | 0.1 MB |
+| `asm-seam-200pin-nested` (sub-assembly) | 5 | 4 | 7.2 s | 9.6 s | 0.8 GB | 30 MB |
+| `asm-hsec8-1100` | 7 | 5 | 9.7 s | 12.6 s | 1.0 GB | 40 MB |
+| `asm-seam-500pin-large` | 3 | 3 | 24 s | 26 s | 1.7 GB | 74 MB |
+
+```
+samples/fetch.sh
+.venv/bin/python sld2step.py samples/parts -o out/
+.venv/bin/python sldasm2step.py samples/asm-hsec8-1100/HSEC8_1100_01_L_DV_BL.sldasm -o out/
+```
 
 Strict Boolean checks fail mostly on pcurve/3D-curve tolerance mismatches
 after healing; the solids are valid and closed, and volumes agree with the
