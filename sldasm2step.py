@@ -203,6 +203,7 @@ class AssemblyBuilder:
             if shape is None:
                 failed = []
                 shapes = []
+                sld2step.progress(f"Converting part {len(self._part_labels) + 1}: {path.name}")
                 for stream, t, nodes in transmits:
                     try:
                         shp, rep = sld2step.convert_nodes(nodes, path.stem)
@@ -355,10 +356,13 @@ def convert_assembly(src: Path, out: Path | None, roots: list[Path] | None = Non
     rep = AsmReport(src.name)
     resolver = Resolver(roots or [src.parent])
     b = AssemblyBuilder(resolver, rep, exclude=exclude, gen_fasteners=gen_fasteners, cache=cache)
+    sld2step.progress(f"Reading the assembly tree of {src.name}")
     b.assembly_label(src)
     if out is not None:
+        sld2step.progress(f"Writing the STEP file for {src.name}")
         b.write(out)
     if glb is not None:
+        sld2step.progress(f"Building the preview of {src.name}")
         rep.glb = b.write_glb(glb, budget_mb, scene_extras={
             "source": src.name,
             "generated": dict(sorted(collections.Counter(rep.generated).items())),

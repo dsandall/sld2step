@@ -1247,6 +1247,11 @@ class Converter:
 
 
 # --------------------------------------------------------------------- driver
+def progress(msg: str):
+    """Called with a short note before each long step. A no-op on the command
+    line; a front-end (web/webentry.py) replaces it to show what is happening."""
+
+
 _QUADRICS_V = ("Geom_CylindricalSurface", "Geom_ConicalSurface")
 
 
@@ -1435,6 +1440,7 @@ def convert_file(src: Path, out: Path | None, glb: Path | None = None, budget_mb
     sys.path.insert(0, str(Path(__file__).parent))
     from sldload import load_transmits
     t0 = time.time()
+    progress(f"Converting {src.name}")
     transmits = load_transmits(src)
     if not transmits:
         raise RuntimeError("no Parasolid body in file")

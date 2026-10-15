@@ -58,6 +58,8 @@ def setup():
     import sld2glb
     sld2glb.gltfpack = lambda src, dst, extra=(): shutil.copyfile(src, dst)
     import sld2step, sldasm2step  # noqa: F401  (import cost paid at load, not at first drop)
+    # progress notes go to stdout with a marker; worker.js turns them into "progress" messages
+    sld2step.progress = lambda msg: print(">> " + msg, flush=True)
 
 
 def _top_assemblies(asms: list[Path]) -> list[Path]:

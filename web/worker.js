@@ -17,12 +17,37 @@ const ready = (async () => {
   const t0 = performance.now();
   post({ type: "stage", text: "Loading Python runtime" });
   const py = await loadPyodide({ indexURL: here("pyodide/") });
-  py.setStdout({ batched: (s) => isReport(s) && post({ type: "line", text: s }) });
+  py.setStdout({ batched: (s) => {
+    if (s.startsWith(">> ")) post({ type: "progress", text: s.slice(3) });
+    else if (isReport(s)) post({ type: "line", text: s });
+  } });
   py.setStderr({ batched: (s) => console.debug(s) });
-  post({ type: "stage", text: "Loading geometry kernel (about 25 MB, cached after the first visit)" });
+  post({ type: "stage", text: "Downloading the geometry kernel" });
   await py.loadPackage("micropip");
-  const wheels = await (await fetch("wheels/index.json")).json();
-  await py.pyimport("micropip").install(wheels.map((w) => here("wheels/" + w)), { deps: false });
+  // Fetch the wheels here (not inside micropip) so the download can report bytes.
+  const wheels = await (await fetch("wheels/index.json")).json();   // [{name, size}]
+  const total = wheels.reduce((a, w) => a + w.size, 0);
+  let loaded = 0, lastPost = 0;
+  py.FS.mkdirTree("/wheels");
+  for (const w of wheels) {
+    const r = await fetch("wheels/" + w.name);
+    if (!r.ok) throw new Error(`wheels/${w.name}: HTTP ${r.status}`);
+    const buf = new Uint8Array(w.size);
+    let at = 0;
+    const reader = r.body.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (at + value.length > buf.length) throw new Error(`wheels/${w.name}: larger than index.json says`);
+      buf.set(value, at); at += value.length; loaded += value.length;
+      if (performance.now() - lastPost > 200) { lastPost = performance.now(); post({ type: "download", loaded, total }); }
+    }
+    py.FS.writeFile("/wheels/" + w.name, buf.subarray(0, at));
+  }
+  post({ type: "download", loaded: total, total });
+  post({ type: "stage", text: "Installing the geometry kernel" });
+  await py.pyimport("micropip").install(wheels.map((w) => "emfs:/wheels/" + w.name), { deps: false });
+  for (const w of wheels) py.FS.unlink("/wheels/" + w.name);
   post({ type: "stage", text: "Loading converter" });
   py.FS.mkdirTree("/app/patches");
   for (const f of PY_FILES) {

@@ -20,7 +20,7 @@ rm -rf dist
 mkdir -p dist/py/patches dist/pyodide dist/wheels dist/vendor/three/addons/{controls,loaders,utils}
 commit=$(git -C "$root" rev-parse HEAD)
 [ -z "$(git -C "$root" status --porcelain -- '*.py' patches web)" ] || echo "warning: uncommitted changes; the footer's source link points at $commit"
-sed "s/__COMMIT__/$commit/g" index.html > dist/index.html
+sed -e "s/__COMMIT7__/${commit:0:7}/g" -e "s/__COMMIT__/$commit/g" index.html > dist/index.html
 cp worker.js _headers dist/
 cp webentry.py dist/py/
 cp "$root"/{sld2step,sldasm2step,sld2glb,sldload,fasteners}.py dist/py/
@@ -28,7 +28,7 @@ cp "$root"/patches/*.patch dist/py/patches/
 cp "$root"/node_modules/pyodide/{pyodide.mjs,pyodide.asm.mjs,pyodide.asm.wasm,python_stdlib.zip,pyodide-lock.json} dist/pyodide/
 cp .vendor/micropip-*.whl dist/pyodide/
 cp .vendor/*.whl dist/wheels/ && rm dist/wheels/micropip-*.whl
-(cd dist/wheels && ls *.whl | python3 -c 'import json, sys; print(json.dumps(sys.stdin.read().split()))' > index.json)
+(cd dist/wheels && python3 -c 'import json, os; print(json.dumps([{"name": f, "size": os.path.getsize(f)} for f in sorted(os.listdir(".")) if f.endswith(".whl")]))' > index.json)
 t="$root/node_modules/three"
 cp "$t"/build/{three.module.js,three.core.js} dist/vendor/three/
 cp "$t"/examples/jsm/controls/OrbitControls.js dist/vendor/three/addons/controls/
